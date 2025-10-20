@@ -1,0 +1,39 @@
+# hydra.job.chdir: false
+hydra:
+  searchpath:
+    # see https://hydra.cc/docs/advanced/search_path/
+    - file://../cfg
+
+headless: true
+enable_livestream: false
+mode: train
+
+sim: ${task.sim}
+env: ${task.env}
+
+total_frames: 20_000_000
+max_iters: -1
+eval_interval: -1
+save_interval: -1
+seed: 0
+
+viewer:
+  resolution: [2460, 1440]
+  eye: [8, 0., 6.]
+  lookat: [0., 0., 3.]
+
+wandb:
+  group: ${oc.select:..task.name}
+  run_name: ${oc.select:..task.name,test}-${oc.select:..algo.name,none}-${oc.select:..task.drone_model.name,none}
+  job_type: train
+  entity: your_wandb_entity_here
+  project: marine_gym
+  mode: offline # set to 'offline' when debugging locally
+  run_id:
+  monitor_gym: True
+  tags:
+
+defaults:
+  - task: HoverRand
+  - algo: ppo
+  - _self_
