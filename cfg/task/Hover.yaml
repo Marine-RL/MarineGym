@@ -13,7 +13,7 @@ env:
   max_episode_length: 200
 
 drone_model:
-  name: BlueROVHeavy
+  name: BlueROV
   controller: LeePositionController
 force_sensor: false
 time_encoding: true
