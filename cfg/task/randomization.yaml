@@ -1,0 +1,30 @@
+randomization:
+  train:
+    enable_randomization: false
+    body:
+      mass_scale: [0.8, 1.2]
+      volume_scale: [0.9, 1.1]
+      coBM_scale: [0.5, 1.5] # cm
+      inertia_scale: [0.8, 1.2]
+      added_mass_scale: [0.5, 1.0]
+      linear_damping_scale: [0.5, 1.0]
+      quadratic_damping_scale: [0.5, 1.0]
+
+    rotor:
+      time_constants_scale: [0.8, 1.2]
+      force_constants_scale: [0.8, 1.2]
+    
+  evaluate:
+    enable_randomization: true
+    body:
+      mass_scale: [0.8, 1.2]
+      volume_scale: [0.8, 1.2]
+      coBM_scale: [0.5, 1.5] # cm
+      inertia_scale: [0.8, 1.2]
+      added_mass_scale: [0.5, 1.0]
+      linear_damping_scale: [0.5, 1.0]
+      quadratic_damping_scale: [0.5, 1.0]
+
+    rotor:
+      time_constants_scale: [0.8, 1.2]
+      force_constants_scale: [0.8, 1.2]

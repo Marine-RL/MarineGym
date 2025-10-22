@@ -1,0 +1,14 @@
+asset_path: ~/bluerov2/bluerov2_description/urdf/BlueROV.urdf
+usd_dir: ~/marinegym/robots/assets/usd/BlueROV
+usd_file_name: BlueROV.usd
+force_usd_conversion: true
+make_instanceable: true
+import_inertia_tensor: true
+fix_base: false
+merge_fixed_joints: true
+self_collision: false
+default_drive_type: none
+default_drive_stiffness: 0.0
+default_drive_damping: 0.0
+link_density: 0.0
+convex_decompose_mesh: false

@@ -1,0 +1,20 @@
+disturbances:
+  train:
+    flow:
+      enable_flow: false
+      max_flow_velocity: [0.5, 0.5, 0.5, 0.0, 0.0, 0.0]
+      flow_velocity_gaussian_noise: [0.1, 0.1, 0.1, 0.0, 0.0, 0.0]
+    payload:
+      enable_payload: false
+      mass: [0.01, 0.2]
+      z: [-0.1, 0.1]
+    
+  evaluate:
+    flow:
+      enable_flow: true
+      max_flow_velocity: [0.5, 0.5, 0.5, 0.0, 0.0, 0.0]
+      flow_velocity_gaussian_noise: [0.1, 0.1, 0.1, 0.0, 0.0, 0.0]
+    payload:
+      enable_payload: true
+      mass: [0.01, 0.2] # scale of the body mass, not kg
+      z: [-0.1, 0.1]
