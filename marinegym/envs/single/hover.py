@@ -81,6 +81,10 @@ class Hover(IsaacEnv):
             drone_model_cfg.name, drone_model_cfg.controller
         )
         
+        from marinegym.robots.robot import ASSET_PATH
+        import omni.isaac.core.utils.stage as stage_utils
+        stage_utils.add_reference_to_stage(usd_path= ASSET_PATH + "/usd/worlds/EmptyMarine.usd",prim_path="/World/defaultGroundPlane")
+
         target_vis_prim = prim_utils.create_prim(
             prim_path="/World/envs/env_0/target",
             usd_path=self.drone.fixed_usd_path,

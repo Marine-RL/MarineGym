@@ -1,0 +1,19 @@
+mdl 1.5;
+
+using ..::Templates::GlassWithVolume import GlassWithVolume;
+import ::tex::gamma_mode;
+import ::state::normal;
+
+export material Tinted_Glass_R50(*)
+ = GlassWithVolume(
+    thin_walled: true,
+    transmission_color: color(0.5f, 0.5f, 0.5f),
+    roughness_texture: texture_2d(),
+    ior: 1.52f,
+    transmission_color_texture: texture_2d(),
+    roughness_texture_influence: 0.f,
+    roughness: 0.f,
+    reflection_color_texture: texture_2d(),
+    reflection_color: color(1.f, 1.f, 1.f),
+    depth: 0.0001f,
+    normal_map_texture: texture_2d());

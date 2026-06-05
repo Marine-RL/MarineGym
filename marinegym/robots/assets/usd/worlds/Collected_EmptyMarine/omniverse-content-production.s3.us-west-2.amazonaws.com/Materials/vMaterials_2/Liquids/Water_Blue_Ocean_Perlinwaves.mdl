@@ -1,0 +1,366 @@
+/******************************************************************************
+ *	        Copyright 2024 NVIDIA Corporation. All rights reserved.           *
+ ******************************************************************************
+
+Permission is hereby granted by NVIDIA Corporation ("NVIDIA"), free of charge,
+to any person obtaining a copy of the sample definition code that uses our
+Material Definition Language (the "MDL Materials"), to reproduce and distribute
+the MDL Materials, including without limitation the rights to use, copy, merge,
+publish, distribute, and sell modified and unmodified copies of the MDL
+Materials, and to permit persons to whom the MDL Materials is furnished to do
+so, in all cases solely for use with NVIDIA's Material Definition Language,
+subject to the following further conditions:
+
+1. The above copyright notices, this list of conditions, and the disclaimer
+that follows shall be retained in all copies of one or more of the MDL
+Materials, including in any software with which the MDL Materials are bundled,
+redistributed, and/or sold, and included either as stand-alone text files,
+human-readable headers or in the appropriate machine-readable metadata fields
+within text or binary files as long as those fields can be easily viewed by the
+user, as applicable.
+2. The name of NVIDIA shall not be used to promote, endorse or advertise any
+Modified Version without specific prior written permission, except a) to comply
+ with the notice requirements otherwise contained herein; or b) to acknowledge
+the contribution(s) of NVIDIA.
+
+THE MDL MATERIALS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF COPYRIGHT, PATENT,
+TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL NVIDIA CORPORATION BE LIABLE FOR
+ANY CLAIM, DAMAGES OR OTHER LIABILITY, INCLUDING ANY GENERAL, SPECIAL,
+INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, WHETHER IN AN ACTION OF
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF THE USE OR INABILITY TO USE
+THE MDL MATERIALS OR FROM OTHER DEALINGS IN THE MDL MATERIALS.
+*/
+
+
+mdl 1.6;
+
+import ::anno::*;
+import ::base::*;
+import ::df::*;
+import ::math::*;
+import ::state::*;
+import ::tex::*;
+import ::nvidia::core_definitions::blend_colors;
+import ::nvidia::core_definitions::dimension;
+
+
+
+
+const string COPYRIGHT =
+" Copyright 2024 NVIDIA Corporation. All rights reserved.\n"
+" MDL MATERIALS ARE PROVIDED PURSUANT TO AN END USER LICENSE  AGREEMENT,\n"
+" WHICH WAS ACCEPTED IN ORDER TO GAIN ACCESS TO THIS FILE.  IN PARTICULAR,\n"
+" THE MDL MATERIALS ARE PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\n"
+" EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF\n"
+" MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF\n"
+" COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL NVIDIA\n"
+" CORPORATION BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, INCLUDING ANY\n"
+" GENERAL, SPECIAL,  INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, WHETHER IN\n"
+" AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF THE USE OR\n"
+" INABILITY TO USE THE MDL MATERIALS OR FROM OTHER DEALINGS IN THE MDL MATERIALS.\n";
+
+
+const string DESCRIPTION = 
+" A water material to simulate dirty/murky water full of particles. The color of the"
+" water is determined by both the 'Water Tint' as well as the scattering tint. To"
+" adjust the material properly, first set 'Water Scattering Amount' to a low value"
+" and raise it gradually as you are increasing the water absorption. Both parameters"
+" are influencing each other with regards to the resulting appearance of the water.";
+
+
+float3 hsv2rgb(float3 c)
+{
+	float4 K = float4(1.0, 2.0/3.0, 1.0/3.0, 3.0);
+    float3 p = ::math::abs(::math::frac(float3(c.x) + float3(K.x, K.y, K.z)) * 6.0 - float3(K.w));
+    return c.z * ::math::lerp(float3(K.x), ::math::clamp(p - float3(K.x), 0.0, 1.0), c.y);
+}
+
+
+float remap_invert_exponential_range(float input, float steepness = 10.0f)
+{
+	return 1.0 / ((input*steepness)+ 0.000001)*(input-1.0)*(input-1.0);
+}
+
+
+// Takes the standard input that every material has. It combines a couple of
+// functions in one convenience function.
+::base::texture_coordinate_info vmat_transform(
+								uniform float2 translation = float2(0.0, 0.0),
+								uniform float rotation     = 0.0,				// rotation in degrees
+								uniform float2 scaling     = float2(1.0, 1.0),
+								uniform ::base::texture_coordinate_system system = ::base::texture_coordinate_uvw,
+								uniform int uv_space       = 0
+)
+{
+	float rotation_rad = (rotation * 3.1415926535897932384626433832f) / 180.f;
+	float4x4 scale =
+	float4x4(1.0 /scaling.x, 0.             ,  0. ,     0.,
+			 0.            , 1.0 /scaling.y ,  0. ,     0.,
+			 0.            , 0.             ,  1.0,     0.,
+			 translation.x , translation.y  ,  0.0,     1.);
+
+    float s = ::math::sin(rotation_rad);
+    float c = ::math::cos(rotation_rad);
+    float4x4 rotate =
+	float4x4(  c  ,  -s   , 0.0 , 0.0,
+			   s  ,   c   , 0.0 , 0.0,
+			   0.0,   0.0 , 1.0 , 0.0,
+			   0. ,   0.0 , 0.0 , 1.);
+	
+	return ::base::transform_coordinate(scale*rotate, ::base::coordinate_source(system, uv_space));
+}
+
+
+export material Water_Blue_Ocean_Perlinwaves(
+    float water_tint = 0.191f [[
+        ::anno::description("At 0.0 the water is a more greenish, at 1.0 a more blueish color."),
+        ::anno::display_name("Water Tint"),
+		::anno::hard_range(0.f, 1.f),
+        ::anno::in_group("Appearance"),
+        ::anno::ui_order(0)
+    ]],
+    float water_absorbtion = 0.637f [[
+        ::anno::description("Higher values will cause light to get absorbed in the water, causing a darker appearance as light travels through long distances."),
+        ::anno::display_name("Water Absorption"),
+		::anno::hard_range(0.f, 1.f),
+        ::anno::in_group("Appearance"),
+        ::anno::ui_order(1)
+    ]],
+    float water_scattering_amount = 0.158f [[
+        ::anno::display_name("Water Scattering"),
+		::anno::soft_range(0.f, 1.f),
+        ::anno::in_group("Appearance"),
+        ::anno::ui_order(2)
+	]],
+    uniform float waves_strength = 1.f [[
+        ::anno::description("Adjusts the intensity of the waves."),
+        ::anno::display_name("Waves Strength"),
+		::anno::soft_range(0.f, 1.f),
+        ::anno::in_group("Appearance", "Procedural Waves"),
+        ::anno::ui_order(4)
+    ]],
+    uniform float waves_phase = 0.0f [[
+        ::anno::description("Changes the phase of the waves (Controls in fact the 4th dimension of the procedural wave function)."),
+        ::anno::display_name("Waves Phase"),
+		::anno::soft_range(0.f, 1.f),
+        ::anno::in_group("Appearance", "Procedural Waves"),
+        ::anno::ui_order(5)
+    ]],
+    uniform float level_progressive_v_motion = 0.f [[
+        ::anno::description("Offsets the waves to create motion. Best to be combined with animation of the \'Waves Phase\' Parameter."),
+        ::anno::display_name("Waves Time (Motion)"),
+		::anno::soft_range(0.f, 1.f),
+        ::anno::in_group("Appearance", "Procedural Waves"),
+        ::anno::ui_order(6)
+    ]],
+    uniform float waves_roughness = 0.847f [[
+        ::anno::description("A higher value will introduce more fine waves."),
+        ::anno::display_name("Waves Roughness"),
+		::anno::hard_range(0.f, 1.f),
+        ::anno::in_group("Appearance", "Procedural Waves"),
+        ::anno::ui_order(7)
+    ]],
+    uniform float waves_stretch = 0.734f [[
+        ::anno::description("Amount which will cause finer waves to get stretched."),
+        ::anno::display_name("Waves Stretch"),
+		::anno::hard_range(0.f, 1.f),
+        ::anno::in_group("Appearance", "Procedural Waves"),
+        ::anno::ui_order(8)
+    ]],
+    uniform float2 texture_translate = float2(0.f) [[
+        ::anno::description("Controls the position of the texture."),
+        ::anno::display_name("Translate"),
+        ::anno::in_group("Transform"),
+        ::anno::ui_order(9)
+    ]],
+    uniform float texture_rotate = 0.f [[
+        ::anno::description("Rotates angle of the texture in degrees."),
+        ::anno::display_name("Rotate"),
+		::anno::soft_range(0.f, 360.f),
+        ::anno::in_group("Transform"),
+        ::anno::ui_order(10)
+    ]],
+    uniform float2 texture_scale = float2(1.f, 2.f) [[
+        ::anno::description("Larger numbers increase the size."),
+        ::anno::display_name("Scale"),
+		::nvidia::core_definitions::dimension(float2(2.0f, 2.0f)),
+        ::anno::in_group("Transform"),
+        ::anno::ui_order(11)
+    ]],
+    uniform int uv_space_index = 0 [[
+        ::anno::description("Use selected UV space for material."),
+        ::anno::display_name("UV Space Index"),
+        ::anno::in_group("Advanced"),
+        ::anno::ui_order(12)
+    ]],
+    uniform float ior = 1.333f [[
+        ::anno::description("Index of Refraction."),
+        ::anno::display_name("Water IOR"),
+		::anno::hard_range(0.f, 3.f),
+        ::anno::in_group("Appearance"),
+        ::anno::ui_order(4)
+	]])
+
+[[
+	::anno::author("NVIDIA vMaterials"),
+    ::anno::display_name("Water Ocean - Caribbean Sea"),
+    ::anno::description(DESCRIPTION),
+	::anno::copyright_notice(COPYRIGHT),
+	::anno::thumbnail("./.thumbs/Water_Blue_Ocean_Perlinwaves.Water_Blue_Ocean_Perlinwaves.png"),
+	::anno::key_words(string[]("water", "liquid", "transparent", "sea", "ocean", "lake", "ocean", "SSS", "subsurfacescattering", "volumetric"))
+]]
+ = 
+    let {
+        bool tmp0 = false;
+        material_surface tmp1(
+            ::df::specular_bsdf(color(1.f, 1.f, 1.f), ::df::scatter_reflect_transmit, ""),
+            material_emission(emission: edf(), intensity: color(0.f, 0.f, 0.f), mode: intensity_radiant_exitance));
+        material_surface tmp2 = material_surface(scattering: bsdf(), emission: material_emission(emission: edf(), intensity: color(0.f, 0.f, 0.f), mode: intensity_radiant_exitance));
+
+		color tmp3 = color(ior);
+        
+        material_volume tmp4(
+            vdf(),
+            ::math::log(color(::math::pow(hsv2rgb(float3(::math::lerp(0.469999999f, 0.529999971f, water_tint), 0.5f, 0.850000024f)), 2.20000005f))) / -remap_invert_exponential_range(water_absorbtion, 0.339000016f),
+            ::math::lerp(0.f, 5.f, water_scattering_amount) * color(0.306201994f, 0.448018998f, 0.655930996f));
+        material_geometry tmp5(
+            float3(0.f),
+            1.f,
+            ::base::flow_noise_bump_texture(vmat_transform(texture_translate, texture_rotate, texture_scale, ::base::texture_coordinate_uvw, uv_space_index * 0), waves_strength, 0.100000001f, waves_phase, 4, false, ::math::lerp(0.f, 0.747000039f, waves_roughness), 1.75400007f, ::math::lerp(1.f, 0.421000034f, waves_stretch), level_progressive_v_motion, ::state::normal()));
+    } in
+        material(
+            thin_walled: tmp0,
+            surface: tmp1,
+            backface: tmp2,
+            ior: tmp3,
+            volume: tmp4,
+            geometry: tmp5);
+			
+			
+// 2		
+export material Water_Ocean_Light_Blue(*)
+[[
+	::anno::author("NVIDIA vMaterials"),
+    ::anno::display_name("Water Ocean - Light Blue"),
+    ::anno::description(DESCRIPTION),
+	::anno::copyright_notice(COPYRIGHT),
+	::anno::thumbnail("./.thumbs/Water_Blue_Ocean_Perlinwaves.Water_Ocean_Light_Blue.png"),
+	::anno::key_words(string[]("water", "liquid", "transparent", "sea", "ocean", "lake", "ocean", "SSS", "subsurfacescattering", "volumetric", "blue"))
+]] = Water_Blue_Ocean_Perlinwaves(
+	water_tint:					0.054f,	
+	water_absorbtion:			0.323f,
+	water_scattering_amount:	0.08f,
+    ior:                        1.333f,
+	waves_strength:				1.0f,
+	waves_phase:				0.0f,
+	level_progressive_v_motion:	0.0f,
+	waves_roughness:			0.85f,
+	waves_stretch:				0.75f,
+	texture_translate:			float2(0.0f),
+	texture_rotate:				0.0f,
+	texture_scale:				float2(1.0f),
+	uv_space_index:				0
+);
+
+// 3
+export material Water_Ocean_Blue_Reef(*)
+[[
+	::anno::author("NVIDIA vMaterials"),
+    ::anno::display_name("Water Ocean - Blue Reef"),
+    ::anno::description(DESCRIPTION),
+	::anno::copyright_notice(COPYRIGHT),
+	::anno::thumbnail("./.thumbs/Water_Blue_Ocean_Perlinwaves.Water_Ocean_Blue_Reef.png"),
+	::anno::key_words(string[]("water", "liquid", "transparent", "sea", "ocean", "lake", "ocean", "SSS", "subsurfacescattering", "volumetric", "blue"))
+]] = Water_Blue_Ocean_Perlinwaves(
+	water_tint:					0.45f,	
+	water_absorbtion:			0.743f,
+	water_scattering_amount:	0.245f,
+    ior:                        1.333f,
+	waves_strength:				1.0f,
+	waves_phase:				0.0f,
+	level_progressive_v_motion:	0.0f,
+	waves_roughness:			0.85f,
+	waves_stretch:				0.75f,
+	texture_translate:			float2(0.0f),
+	texture_rotate:				0.0f,
+	texture_scale:				float2(1.0f),
+	uv_space_index:				0
+);
+
+// 4
+export material Water_Ocean_Green_Reef(*)
+[[
+	::anno::author("NVIDIA vMaterials"),
+    ::anno::display_name("Water Ocean - Green Reef"),
+    ::anno::description(DESCRIPTION),
+	::anno::copyright_notice(COPYRIGHT),
+	::anno::thumbnail("./.thumbs/Water_Blue_Ocean_Perlinwaves.Water_Ocean_Green_Reef.png"),
+	::anno::key_words(string[]("water", "liquid", "transparent", "sea", "ocean", "lake", "ocean", "SSS", "subsurfacescattering", "volumetric", "blue"))
+]] = Water_Blue_Ocean_Perlinwaves(
+	water_tint:					0.0f,	
+	water_absorbtion:			0.743f,
+	water_scattering_amount:	0.245f,
+    ior:                        1.333f,
+	waves_strength:				1.0f,
+	waves_phase:				0.0f,
+	level_progressive_v_motion:	0.0f,
+	waves_roughness:			0.85f,
+	waves_stretch:				0.75f,
+	texture_translate:			float2(0.0f),
+	texture_rotate:				0.0f,
+	texture_scale:				float2(1.0f),
+	uv_space_index:				0
+);
+
+// 5
+export material Water_Pool_Clear_Blue(*)
+[[
+	::anno::author("NVIDIA vMaterials"),
+    ::anno::display_name("Water Pool - Clear Blue"),
+    ::anno::description(DESCRIPTION),
+	::anno::copyright_notice(COPYRIGHT),
+	::anno::thumbnail("./.thumbs/Water_Blue_Ocean_Perlinwaves.Water_Pool_Clear_Blue.png"),
+	::anno::key_words(string[]("water", "liquid", "transparent", "clear", "pool", "blue"))
+]] = Water_Blue_Ocean_Perlinwaves(
+	water_tint:					0.976f,	
+	water_absorbtion:			0.493f,
+	water_scattering_amount:	0.0f,
+    ior:                        1.333f,
+	waves_strength:				1.0f,
+	waves_phase:				0.0f,
+	level_progressive_v_motion:	0.0f,
+	waves_roughness:			0.4f,
+	waves_stretch:				0.75f,
+	texture_translate:			float2(0.0f),
+	texture_rotate:				0.0f,
+	texture_scale:				float2(1.0f),
+	uv_space_index:				0
+);
+
+
+// 6
+export material Water_Pool_Clear_Green(*)
+[[
+	::anno::author("NVIDIA vMaterials"),
+    ::anno::display_name("Water Ocean - Clear Green"),
+    ::anno::description(DESCRIPTION),
+	::anno::copyright_notice(COPYRIGHT),
+	::anno::thumbnail("./.thumbs/Water_Blue_Ocean_Perlinwaves.Water_Pool_Clear_Green.png"),
+	::anno::key_words(string[]("water", "liquid", "transparent", "clear", "pool", "green"))
+]] = Water_Blue_Ocean_Perlinwaves(
+	water_tint:					0.01f,	
+	water_absorbtion:			0.54f,
+	water_scattering_amount:	0.0f,
+    ior:                        1.333f,
+	waves_strength:				1.0f,
+	waves_phase:				0.0f,
+	level_progressive_v_motion:	0.0f,
+	waves_roughness:			0.4f,
+	waves_stretch:				0.75f,
+	texture_translate:			float2(0.0f),
+	texture_rotate:				0.0f,
+	texture_scale:				float2(1.0f),
+	uv_space_index:				0
+);

@@ -1,0 +1,106 @@
+mdl 1.5;
+
+import ::tex::*;
+
+import GlassUtils::apply_roughness_influence;
+import GlassUtils::get_color;
+import GlassUtils::get_volume_absorption;
+import ::anno::author;
+import ::anno::copyright_notice;
+import ::anno::description;
+import ::anno::display_name;
+import ::anno::hard_range;
+import ::anno::in_group;
+import ::anno::key_words;
+import ::anno::soft_range;
+import ::anno::unused;
+import ::anno::usage;
+import ::base::tangent_space_normal_texture;
+import ::base::texture_coordinate_info;
+import ::df::fresnel_layer;
+import ::df::microfacet_ggx_smith_bsdf;
+import ::df::scatter_mode;
+import ::state::normal;
+import ::state::texture_coordinate;
+import ::state::texture_tangent_u;
+import ::state::texture_tangent_v;
+import ::tex::gamma_mode;
+import ::tex::wrap_mode;
+
+export material GlassWithVolume(
+    uniform bool thin_walled = false [[
+        ::anno::in_group("Material", "", "")
+    ]],
+    uniform color transmission_color = color(1.f, 0.00609700009f, 0.00609700009f) [[
+        ::anno::in_group("Transmission", "", ""),
+        ::anno::usage("")
+    ]],
+    uniform texture_2d roughness_texture = texture_2d() [[
+        ::anno::description("The input texture"),
+        ::anno::in_group("Roughness", "", ""),
+        ::anno::usage("")
+    ]],
+    uniform float ior = 1.34100008f [[
+        ::anno::in_group("Material", "", ""),
+        ::anno::usage("")
+    ]],
+    uniform texture_2d transmission_color_texture = texture_2d() [[
+        ::anno::description("The input texture"),
+        ::anno::in_group("Transmission", "", "")
+    ]],
+    float roughness_texture_influence = 1.f [[
+        ::anno::in_group("Roughness", "", ""),
+        ::anno::usage("")
+    ]],
+    float roughness = 0.f [[
+        ::anno::in_group("Roughness", "", ""),
+        ::anno::usage("")
+    ]],
+    uniform texture_2d reflection_color_texture = texture_2d() [[
+        ::anno::description("The input texture"),
+        ::anno::in_group("Reflection", "", ""),
+        ::anno::usage("")
+    ]],
+    uniform color reflection_color = color(1.f, 1.f, 1.f) [[
+        ::anno::in_group("Reflection", "", ""),
+        ::anno::usage("")
+    ]],
+    float depth = 0.00100000005f [[
+        ::anno::description("Controls how much light is absorbed through the surface"),
+        ::anno::display_name("Volume Absorption"),
+        ::anno::in_group("Volume", "", ""),
+        ::anno::usage(""),
+        ::anno::soft_range(0.f, 1.f),
+        ::anno::hard_range(0.f, 1000.f)
+    ]],
+    uniform texture_2d normal_map_texture = texture_2d() [[
+        ::anno::description("The input texture"),
+        ::anno::in_group("Normal Map", "", ""),
+        ::anno::usage("")
+    ]])
+ = 
+    let {
+        bool tmp0 = thin_walled;
+        material_surface tmp1(
+            ::df::fresnel_layer(ior, 1.f, ::df::microfacet_ggx_smith_bsdf(GlassUtils::apply_roughness_influence(roughness_texture, roughness, roughness_texture_influence), GlassUtils::apply_roughness_influence(roughness_texture, roughness, roughness_texture_influence), GlassUtils::get_color(reflection_color_texture, reflection_color), ::state::texture_tangent_u(0), ::df::scatter_reflect, ""), ::df::microfacet_ggx_smith_bsdf(GlassUtils::apply_roughness_influence(roughness_texture, roughness, roughness_texture_influence), GlassUtils::apply_roughness_influence(roughness_texture, roughness, roughness_texture_influence), thin_walled ? GlassUtils::get_color(transmission_color_texture, transmission_color) : color(1.f, 1.f, 1.f), ::state::texture_tangent_u(0), ::df::scatter_transmit, ""), ::state::normal()),
+            material_emission(emission: edf(), intensity: color(0.f, 0.f, 0.f), mode: intensity_radiant_exitance));
+        material_surface tmp2 = material_surface(scattering: bsdf(), emission: material_emission(emission: edf(), intensity: color(0.f, 0.f, 0.f), mode: intensity_radiant_exitance));
+        color tmp3 = ior;
+        material_volume tmp4(
+            vdf(),
+            thin_walled ? GlassUtils::get_color(transmission_color_texture, transmission_color) : GlassUtils::get_volume_absorption(depth, GlassUtils::get_color(transmission_color_texture, transmission_color)),
+            color(0.f, 0.f, 0.f));
+        material_geometry tmp5(
+            float3(0.f),
+            1.f,
+            ::base::tangent_space_normal_texture(normal_map_texture, 1.f, false, false, ::base::texture_coordinate_info(::state::texture_coordinate(0), ::state::texture_tangent_u(0), ::state::texture_tangent_v(0)), float2(0.f, 1.f), float2(0.f, 1.f), ::tex::wrap_repeat, ::tex::wrap_repeat, false, 1.f, 0.f));
+        hair_bsdf tmp6 = hair_bsdf();
+    } in
+        material(
+            thin_walled: tmp0,
+            surface: tmp1,
+            backface: tmp2,
+            ior: tmp3,
+            volume: tmp4,
+            geometry: tmp5,
+            hair: tmp6);

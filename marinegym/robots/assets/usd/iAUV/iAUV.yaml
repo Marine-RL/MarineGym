@@ -1,0 +1,69 @@
+name: iAUV
+
+drag_coef: 0.3
+#mode1: from git repo "https://github.com/dsor-isr/farol_gazebo.git"
+volume: 0.0324171
+coBM: 0.01
+hydro_coef:
+  added_mass:
+  - 1.2
+  - 18.0
+  - 18.0
+  - 0.006
+  - 1.5
+  - 1.5
+  linear_damping:
+  - 3.4
+  - 24.0
+  - 24.0
+  - 0.4
+  - 9.9
+  - 9.9
+  quadratic_damping:
+  - 4.2
+  - 85.0
+  - 85.0
+  - 0.0008
+  - 9.6
+  - 9.6
+
+fin_configuration:
+  dimension:
+    length: 0.2
+    width: 0.05
+    thickness: 0.05
+  angle_threshold: 
+  - 1.57 # 角度限制（弧度）
+  - 1.57
+  - 1.57
+  - 1.57
+  time_constants: 
+  - 0.01
+  - 0.01
+  - 0.01
+  - 0.01
+  lift_constants: 
+  - 30.84
+  - 30.84
+  - 30.84
+  - 30.84
+  drag_constants: 
+  - 20.3544
+  - 20.3544
+  - 20.3544
+  - 20.3544
+  num_fins: 4
+
+
+rotor_configuration:
+  directions:
+  - 1.0
+  time_constants:
+  - 0.0012
+  force_constants:
+  - 0.0002
+  max_rotation_velocities:
+  - 3000
+  moment_constants:
+  - 1.3677728816219314e-09
+  num_rotors: 1

@@ -1,0 +1,83 @@
+mdl 1.5;
+
+import ::tex::*;
+import ::math::*;
+import ::anno::*;
+import ::base::*;
+import ::state::*;
+
+export float get_float( uniform texture_2d t, float f ){
+	return ::tex::texture_isvalid(t) 
+	? 
+	::base::file_texture(t, 
+		color(0.f, 0.f, 0.f), 
+		color(1.f, 1.f, 1.f), 
+		::base::mono_maximum, 
+		::base::texture_coordinate_info(::state::texture_coordinate(0), ::state::texture_tangent_u(0), ::state::texture_tangent_v(0)), 
+		float2(0.f, 1.f), 
+		float2(0.f, 1.f), 
+		::tex::wrap_repeat, 
+		::tex::wrap_repeat, 
+		false).mono 
+	: 
+	f;
+}
+
+export color get_color( uniform texture_2d t, color c ){
+	return ::tex::texture_isvalid(t) 
+	? 
+	::base::file_texture(t, 
+		color(0.f, 0.f, 0.f), 
+		color(1.f, 1.f, 1.f), 
+		::base::mono_alpha, 
+		::base::texture_coordinate_info(::state::texture_coordinate(0), ::state::texture_tangent_u(0), ::state::texture_tangent_v(0)), 
+		float2(0.f, 1.f), 
+		float2(0.f, 1.f), 
+		::tex::wrap_repeat, 
+		::tex::wrap_repeat, 
+		false).tint 
+	: 
+	c;
+}
+
+export float apply_roughness_influence( uniform texture_2d t, float f, float i ){
+	return	::math::lerp(f, get_float(t, f), i);
+}
+
+export color get_volume_absorption(
+
+     float absorption = float(0) [[
+        anno::display_name("Volume Absorption"),
+        anno::description("Controls how much light is absorbed through the surface"),
+        anno::hard_range(0.0,1000.0),
+        anno::soft_range(0.0,1.0)
+    ]],
+
+     color absorptionColor = color(1) [[
+        anno::display_name("Absorption Color"),
+        anno::description("Simulates shifts in color when light passes through the surface")
+    ]]
+
+) [[
+    anno::display_name("Absorption"),
+    anno::description("Provides an absorption coefficient for the volume")
+]] {
+    return (absorption>0)? -math::log(math::clamp(absorptionColor, color(0.01), color(0.99)))*absorption*100.0 : color(0);
+}
+
+export color volume_scattering(
+
+     float scattering = float(0) [[
+        anno::display_name("Volume Scattering"),
+        anno::description("Controls how much light is scattered through the surface"),
+        anno::hard_range(0.0,1000.0),
+        anno::soft_range(0.0,1.0)
+        
+    ]]
+
+) [[
+    anno::display_name("Scattering"),
+    anno::description("Provides a scattering coefficient for the volume")
+]] {
+    return (scattering>0)? -math::log(color(0.5))*scattering*100.0 : color(0);
+}

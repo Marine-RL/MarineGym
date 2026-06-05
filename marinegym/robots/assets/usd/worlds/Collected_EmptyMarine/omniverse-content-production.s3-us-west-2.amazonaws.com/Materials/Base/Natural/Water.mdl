@@ -1,0 +1,19 @@
+mdl 1.5;
+
+using ..::Templates::GlassWithVolume import GlassWithVolume;
+import ::tex::gamma_mode;
+import ::state::normal;
+
+export material Water(*)
+ = GlassWithVolume(
+    thin_walled: false,
+    transmission_color: color(0.612f, 0.714f, 0.747f),
+    roughness_texture: texture_2d(),
+    ior: 1.333f,
+    transmission_color_texture: texture_2d(),
+    roughness_texture_influence: 0.f,
+    roughness: 0.f,
+    reflection_color_texture: texture_2d(),
+    reflection_color: color(1.f, 1.f, 1.f),
+    depth: 0.0001f,
+    normal_map_texture: texture_2d("./Water/Water_Normal.png", ::tex::gamma_linear));

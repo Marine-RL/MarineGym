@@ -7,12 +7,12 @@ defaults:
   - randomization@_here_ # Include the randomization settings
   - disturbances@_here_ # Include the disturbance settings
 env:
-  num_envs: 4096
+  num_envs: 16
   max_episode_length: 600
 
 drone_model:
-  name: BlueROV
-  controller: LeePositionController
+  name: iAUV
+  controller: null
 force_sensor: false
 time_encoding: true
 intrinsics: false

@@ -1,0 +1,101 @@
+{
+    "version": "1.0",
+    "file_records": [
+        {
+            "source_url": "/home/david/codeSpace/MarineGym/marinegym/robots/assets/usd/worlds/EmptyMarine.usd",
+            "source_hash": "1c3f7c71512cb8c975965e07364f2af00ae81a92",
+            "target_url": "./EmptyMarine.usd",
+            "target_hash": "133c4f2dcd593a67ce2e372358cfcddb6c04b53d"
+        },
+        {
+            "source_url": "http://omniverse-content-production.s3.us-west-2.amazonaws.com/Materials/vMaterials_2/Liquids/Water_Blue_Ocean_Perlinwaves.mdl",
+            "source_hash": "0bddb91e38eafdc73ed20221c492fa738461fc52",
+            "target_url": "./omniverse-content-production.s3.us-west-2.amazonaws.com/Materials/vMaterials_2/Liquids/Water_Blue_Ocean_Perlinwaves.mdl",
+            "target_hash": "87dd3d0d4136a7d3ee8b9bbd81751c01c4a7267b"
+        },
+        {
+            "source_url": "http://omniverse-content-production.s3-us-west-2.amazonaws.com/Materials/Base/Natural/Sand.mdl",
+            "source_hash": "d49cc043e86496ada228babc2698825fd55ffa46",
+            "target_url": "./omniverse-content-production.s3-us-west-2.amazonaws.com/Materials/Base/Natural/Sand.mdl",
+            "target_hash": "942f2a17003658e11fa2f7c3d68ee897f4f9a1c4"
+        },
+        {
+            "source_url": "http://omniverse-content-production.s3-us-west-2.amazonaws.com/Materials/Base/Natural/Water.mdl",
+            "source_hash": "0d4a4877a7c199429d5e7d3bc6be1d1b5e219e4e",
+            "target_url": "./omniverse-content-production.s3-us-west-2.amazonaws.com/Materials/Base/Natural/Water.mdl",
+            "target_hash": "e89e7eeb1bcc8f01a96f26399b7842df966e701c"
+        },
+        {
+            "source_url": "http://omniverse-content-production.s3-us-west-2.amazonaws.com/Materials/Base/Natural/Water_Opaque.mdl",
+            "source_hash": "e4ec2ce7c9b2da58933e074004be6161c3949340",
+            "target_url": "./omniverse-content-production.s3-us-west-2.amazonaws.com/Materials/Base/Natural/Water_Opaque.mdl",
+            "target_hash": "f87a88cbc37862340be63f615a398fad518c02c0"
+        },
+        {
+            "source_url": "http://omniverse-content-production.s3-us-west-2.amazonaws.com/Materials/Base/Glass/Blue_Glass.mdl",
+            "source_hash": "754f732f5d67ef37d3ca9d56cf916a15b5badc18",
+            "target_url": "./omniverse-content-production.s3-us-west-2.amazonaws.com/Materials/Base/Glass/Blue_Glass.mdl",
+            "target_hash": "8cbcc95c5d5ce21919260064c9f5b146455cd976"
+        },
+        {
+            "source_url": "http://omniverse-content-production.s3-us-west-2.amazonaws.com/Materials/Base/Glass/Dull_Glass.mdl",
+            "source_hash": "775b90c531a1dc887c5989da54fd91ab26a991ce",
+            "target_url": "./omniverse-content-production.s3-us-west-2.amazonaws.com/Materials/Base/Glass/Dull_Glass.mdl",
+            "target_hash": "ce6d482fd1ed0e2465a331fb566af1fdcb657819"
+        },
+        {
+            "source_url": "http://omniverse-content-production.s3-us-west-2.amazonaws.com/Materials/Base/Glass/Tinted_Glass_R50.mdl",
+            "source_hash": "21512926f24148112a8f3afca6a5c486d209af96",
+            "target_url": "./omniverse-content-production.s3-us-west-2.amazonaws.com/Materials/Base/Glass/Tinted_Glass_R50.mdl",
+            "target_hash": "003f5ff5edbd63c57fb1a50a1f7f5de067a480dc"
+        },
+        {
+            "source_url": "http://omniverse-content-production.s3-us-west-2.amazonaws.com/Materials/Base/Plastics/Plastic_ABS.mdl",
+            "source_hash": "d6195debf7616ca2ac0fa581544bab2b3aaf7f5d",
+            "target_url": "./omniverse-content-production.s3-us-west-2.amazonaws.com/Materials/Base/Plastics/Plastic_ABS.mdl",
+            "target_hash": "c54a8a6ca643fb248a757887f62d6b107e4a95db"
+        },
+        {
+            "source_url": "/home/david/Documents/isaac_underwater/models/Unreal_Engine_4_Sky.usdz",
+            "source_hash": "6d46b3c56c560376bf46eca732fd680e0927baa5",
+            "target_url": "./Documents/isaac_underwater/models/Unreal_Engine_4_Sky.usdz",
+            "target_hash": "68514747b920a4f016628853723a6e1ec5f77b7f"
+        },
+        {
+            "source_url": "http://omniverse-content-production.s3-us-west-2.amazonaws.com/Materials/Base/Natural/Water/Water_Normal.png",
+            "source_hash": "4500a2981a9ea4da0cd80b1282071145e58aea66",
+            "target_url": "./omniverse-content-production.s3-us-west-2.amazonaws.com/Materials/Base/Natural/Water/Water_Normal.png",
+            "target_hash": "0cb776e952d938ef7c1892f6dfd10311e46a45ba"
+        },
+        {
+            "source_url": "http://omniverse-content-production.s3-us-west-2.amazonaws.com/Materials/Base/Natural/Sand/Sand_BaseColor.png",
+            "source_hash": "ec277a60bd281d38f6ce52fcc69b9d3ec39b6e4e",
+            "target_url": "./omniverse-content-production.s3-us-west-2.amazonaws.com/Materials/Base/Natural/Sand/Sand_BaseColor.png",
+            "target_hash": "ac5f7d862c9985b840e618114437f99b45556a2b"
+        },
+        {
+            "source_url": "http://omniverse-content-production.s3-us-west-2.amazonaws.com/Materials/Base/Templates/GlassWithVolume.mdl",
+            "source_hash": "28514fc51c78ea8ff60c8ea062ee2f88bb7aed8b",
+            "target_url": "./omniverse-content-production.s3-us-west-2.amazonaws.com/Materials/Base/Templates/GlassWithVolume.mdl",
+            "target_hash": "a8bc0beb89f5cdcdcfe63e6c54cb7c173c719536"
+        },
+        {
+            "source_url": "http://omniverse-content-production.s3-us-west-2.amazonaws.com/Materials/Base/Natural/Sand/Sand_ORM.png",
+            "source_hash": "9b073619ae601202a6e0df567b9ade6e2cb8c0c4",
+            "target_url": "./omniverse-content-production.s3-us-west-2.amazonaws.com/Materials/Base/Natural/Sand/Sand_ORM.png",
+            "target_hash": "ec98963bc54756a460dff0e6987f72efccf1af8b"
+        },
+        {
+            "source_url": "http://omniverse-content-production.s3-us-west-2.amazonaws.com/Materials/Base/Natural/Sand/Sand_Normal.png",
+            "source_hash": "35fdc27bcd2971b09623718c644b2ac6ebf06985",
+            "target_url": "./omniverse-content-production.s3-us-west-2.amazonaws.com/Materials/Base/Natural/Sand/Sand_Normal.png",
+            "target_hash": "8ac40fe2f1314d3c68390f230968b1b11c9652f8"
+        },
+        {
+            "source_url": "http://omniverse-content-production.s3-us-west-2.amazonaws.com/Materials/Base/Templates/GlassUtils.mdl",
+            "source_hash": "299053fc792abfda95d0213d3d8c7ce0d0d2772b",
+            "target_url": "./omniverse-content-production.s3-us-west-2.amazonaws.com/Materials/Base/Templates/GlassUtils.mdl",
+            "target_hash": "d4a94c7b6f752b23fe944944f6b25b4f23906aa3"
+        }
+    ]
+}
