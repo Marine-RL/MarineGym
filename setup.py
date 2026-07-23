@@ -16,6 +16,9 @@ setup(
         "pandas",
         "moviepy",
         "av",
+        "matplotlib",
+        "setproctitle",
+        "tqdm",
         "torchrl==0.4.0", # for torch==2.2.2
         "tensordict==0.4.0",
     ],

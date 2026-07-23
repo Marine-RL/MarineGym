@@ -29,6 +29,7 @@
 
 To install MarineGym, we recommend reading one of the following guides:
 - [Installation from Source](https://marinegym.netlify.app/installation_from_source) (recommended for development)
+- [Native Windows Installation](docs/windows.md) (Isaac Sim 4.1.0 workstation package)
 - [Docker Environment](https://marinegym.netlify.app/docker_environment) (recommended for training purposes; no visualization interface)
 
 If you encounter any issues, you can find solutions to common problems in the [FAQ](https://marinegym.netlify.app/faq) or feel free to open an issue.

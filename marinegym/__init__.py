@@ -1,13 +1,16 @@
 import os
 
 import torch
-from isaacsim import SimulationApp
 from tensordict import TensorDict
+
+from ._platform import resolve_experience_path
 
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), os.path.pardir, "cfg")
 
 
 def init_simulation_app(cfg):
+    from isaacsim import SimulationApp
+
     # launch the simulator
     # config = {"headless": cfg["headless"], "anti_aliasing": 1}
     config = {
@@ -25,8 +28,8 @@ def init_simulation_app(cfg):
     # if cfg.headless:
     #     app_experience = f"{os.environ['EXP_PATH']}/omni.isaac.sim.python.gym.headless.kit"
     # else:
-    #     app_experience = f"{os.environ['EXP_PATH']}/omni.isaac.sim.python.kit"
-    app_experience = f"{os.environ['EXP_PATH']}/omni.isaac.sim.python.kit"
+    #     app_experience = resolve_experience_path()
+    app_experience = resolve_experience_path()
     simulation_app = SimulationApp(config, experience=app_experience)
     
     if config['enable_livestream']:
